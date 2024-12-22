@@ -215,7 +215,7 @@ body {
 }
 
 .mod-item {
-  background-color: rgba(63, 63, 63, 0.1);
+  background-color: #00ffbb54; /* Spiderheck green */
   padding: 20px;
   border-radius: 10px;
   text-align: center;
@@ -223,7 +223,7 @@ body {
   max-width: 100%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease;
-  border: 1px solid #ccc;
+  border: 3px solid #ff0064;
 }
 
 .mod-item:hover {
