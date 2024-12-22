@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mods - Silk Modding Tool</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <!-- Navigation Links -->
+    <div class="nav">
+      <a href="/" class="logo">
+        <img src="../assets/silk-main.png" alt="Silk Logo" />
+        Silk
+      </a>
+      <div class="nav-links">
+        <a href="https://github.com/SilkModding/Silk" target="_blank">GitHub</a>
+        <a href="https://discord.gg/GGv92crcx3" target="_blank">Discord</a>
+        <a href="https://github.com/SilkModding/Silk/wiki" target="_blank"
+          >Wiki</a
+        >
+      </div>
+    </div>
+
+    <!-- Mods Section -->
+    <div class="mods-section">
+      <h1>Browse Mods</h1>
+      <p class="sub-header">
+        Explore and download the latest mods for Spiderheck.
+      </p>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input
+          type="text"
+          id="searchBar"
+          placeholder="Search for mods..."
+          onkeyup="filterMods()"
+        />
+      </div>
+
+      <!-- Mods List -->
+      <div class="mods-list" id="modList">
+        <div class="mod-item">
+          <img
+            src="../assets/mods/default.jpg"
+            alt="Spiderheck Super Mod"
+            class="mod-image"
+          />
+          <h2>Spiderheck Super Mod</h2>
+          <p>Become the Spiderheck Superhero with this mod.</p>
+          <a href="mods/Spiderheck-Super-Mod.zip">Download</a>
+        </div>
+        <div class="mod-item">
+          <img
+            src="../assets/mods/default.jpg"
+            alt="New Weapons Pack"
+            class="mod-image"
+          />
+          <h2>New Weapons Pack</h2>
+          <p>Adds some fun new weapons to the game.</p>
+          <a href="mods/New-Weapons-Pack.zip">Download</a>
+        </div>
+        <div class="mod-item">
+          <img
+            src="../assets/mods/default.jpg"
+            alt="Ultimate Spiderheck Skins"
+            class="mod-image"
+          />
+          <h2>Ultimate Spiderheck Skins</h2>
+          <p>Get the ultimate collection of Spiderheck skins for Spiderheck.</p>
+          <a href="mods/Ultimate-Skins-Pack.zip">Download</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>&copy; 2024 Silk Modding. All rights reserved.</p>
+    </div>
+
+    <script>
+      // Filter mods based on search input
+      function filterMods() {
+        const query = document.getElementById("searchBar").value.toLowerCase();
+        const modItems = document.getElementsByClassName("mod-item");
+
+        Array.from(modItems).forEach((modItem) => {
+          const title = modItem
+            .getElementsByTagName("h2")[0]
+            .innerText.toLowerCase();
+          if (title.includes(query)) {
+            modItem.style.display = "block";
+          } else {
+            modItem.style.display = "none";
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
