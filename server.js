@@ -1,9 +1,13 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const { marked } = require("marked");
+const marked = require("marked");
 const multer = require("multer");
 const crypto = require("crypto");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 const app = express();
 
 // Configure file upload storage
@@ -79,10 +83,11 @@ const getDocsPages = () => {
     .filter((file) => file.endsWith(".md"))
     .map((file) => file.replace(".md", ""));
 };
+
 // Update the docs routes
 const docsTemplate = fs.readFileSync(
   path.join(__dirname, "src", "docs.html"),
-  "utf8",
+  "utf8"
 );
 
 app.get("/docs", (req, res) => {
@@ -97,7 +102,7 @@ app.get("/docs", (req, res) => {
       `<div class="sidebar" id="sidebar">
         <h2>Documentation</h2>
         <ul>${sidebar}</ul>
-       </div>`,
+       </div>`
     )
     .replace(
       '<div class="docs-content" id="content"></div>',
@@ -105,7 +110,7 @@ app.get("/docs", (req, res) => {
         <h1>Silk Documentation</h1>
         <p>Welcome! You can find a mirror of the documentation on <a href="https://github.com/SilkModding/Silk/wiki">the GitHub wiki</a> if you prefer.</p>
         <p>Select a topic from the sidebar to get started.</p>
-       </div>`,
+       </div>`
     );
 
   res.send(fullPage);
@@ -134,15 +139,16 @@ app.get("/docs/:page", (req, res) => {
       `<div class="sidebar" id="sidebar">
         <h2>Documentation</h2>
         <ul>${sidebar}</ul>
-       </div>`,
+       </div>`
     )
     .replace(
       '<div class="docs-content" id="content"></div>',
-      `<div class="docs-content">${htmlContent}</div>`,
+      `<div class="docs-content">${htmlContent}</div>`
     );
 
   res.send(fullPage);
 });
+
 // Handle other routes
 app.get("/download", (req, res) => {
   const htmlPath = path.join(__dirname, "src", "download.html");
@@ -238,7 +244,7 @@ app.post(
       console.error("Error uploading mod:", error);
       res.status(500).json({ error: "Failed to upload mod" });
     }
-  },
+  }
 );
 
 // Serve mod files
@@ -279,7 +285,7 @@ app.get("/download/mod/:id", (req, res) => {
       // Set headers for better download experience
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${mod.fileName}"`,
+        `attachment; filename="${mod.fileName}"`
       );
       res.setHeader("Content-Type", "application/octet-stream");
       res.setHeader("Content-Length", stats.size);
