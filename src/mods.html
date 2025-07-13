@@ -4,10 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mods - Silk Modding Tool</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/main.css" />
     <link rel="icon" type="image/png" href="/assets/silk-letter.png" />
-    <link rel="stylesheet" href="/public/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/main.css" />
+    <link rel="stylesheet" href="/stylesheets/mods.css" />
+    <link rel="stylesheet" href="/stylesheets/form.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
     <!-- Navigation Links -->
@@ -39,35 +47,52 @@
         <form id="modUploadForm">
           <div class="form-group">
             <label for="modName">Mod Name *</label>
-            <input type="text" id="modName" name="name" required>
+            <input type="text" id="modName" name="name" required />
           </div>
-          
+
           <div class="form-group">
             <label for="modAuthor">Your Name *</label>
-            <input type="text" id="modAuthor" name="author" required>
+            <input type="text" id="modAuthor" name="author" required />
           </div>
-          
+
           <div class="form-group">
             <label for="modVersion">Version *</label>
-            <input type="text" id="modVersion" name="version" placeholder="e.g., 1.0.0" required>
+            <input
+              type="text"
+              id="modVersion"
+              name="version"
+              placeholder="e.g., 1.0.0"
+              required
+            />
           </div>
-          
+
           <div class="form-group">
             <label for="modDescription">Description *</label>
-            <textarea id="modDescription" name="description" placeholder="Describe your mod..." required></textarea>
+            <textarea
+              id="modDescription"
+              name="description"
+              placeholder="Describe your mod..."
+              required
+            ></textarea>
           </div>
-          
+
           <div class="form-group">
             <label for="modFile">Mod File (.zip or .silkmod) *</label>
-            <input type="file" id="modFile" name="modFile" accept=".zip,.silkmod" required>
+            <input
+              type="file"
+              id="modFile"
+              name="modFile"
+              accept=".zip,.silkmod"
+              required
+            />
           </div>
-          
+
           <div class="form-group">
             <label for="modIcon">Mod Icon (Optional)</label>
-            <input type="file" id="modIcon" name="icon" accept="image/*">
-            <img id="iconPreview" class="preview-image" alt="Preview">
+            <input type="file" id="modIcon" name="icon" accept="image/*" />
+            <img id="iconPreview" class="preview-image" alt="Preview" />
           </div>
-          
+
           <button type="submit">
             <i class="fas fa-upload"></i> Upload Mod
           </button>
@@ -101,90 +126,103 @@
     <script>
       // Toggle upload form visibility
       function toggleUploadForm() {
-        const form = document.getElementById('modUploadForm');
-        const container = document.getElementById('uploadForm');
-        if (form.style.display === 'none') {
-          form.style.display = 'block';
-          container.classList.remove('collapsed');
+        const form = document.getElementById("modUploadForm");
+        const container = document.getElementById("uploadForm");
+        if (form.style.display === "none") {
+          form.style.display = "block";
+          container.classList.remove("collapsed");
         } else {
-          form.style.display = 'none';
-          container.classList.add('collapsed');
+          form.style.display = "none";
+          container.classList.add("collapsed");
         }
       }
 
       // Preview icon image
-      document.getElementById('modIcon').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(event) {
-            const preview = document.getElementById('iconPreview');
-            preview.src = event.target.result;
-            preview.style.display = 'block';
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+      document
+        .getElementById("modIcon")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              const preview = document.getElementById("iconPreview");
+              preview.src = event.target.result;
+              preview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+          }
+        });
 
       // Handle mod submission
-      document.getElementById('modUploadForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData();
-        formData.append('name', document.getElementById('modName').value);
-        formData.append('author', document.getElementById('modAuthor').value);
-        formData.append('version', document.getElementById('modVersion').value);
-        formData.append('description', document.getElementById('modDescription').value);
-        
-        const modFile = document.getElementById('modFile').files[0];
-        const iconFile = document.getElementById('modIcon').files[0];
-        
-        if (modFile) formData.append('modFile', modFile);
-        if (iconFile) formData.append('icon', iconFile);
-        
-        const statusElement = document.getElementById('uploadStatus');
-        statusElement.textContent = 'Uploading mod...';
-        statusElement.style.color = 'white';
-        
-        try {
-          const response = await fetch('/api/mods', {
-            method: 'POST',
-            body: formData
-          });
-          
-          const result = await response.json();
-          
-          if (response.ok) {
-            statusElement.textContent = 'Mod uploaded successfully!';
-            statusElement.style.color = '#4CAF50';
-            loadMods(); // Refresh the mod list
-            this.reset();
-            document.getElementById('iconPreview').style.display = 'none';
-          } else {
-            throw new Error(result.error || 'Failed to upload mod');
+      document
+        .getElementById("modUploadForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const formData = new FormData();
+          formData.append("name", document.getElementById("modName").value);
+          formData.append("author", document.getElementById("modAuthor").value);
+          formData.append(
+            "version",
+            document.getElementById("modVersion").value
+          );
+          formData.append(
+            "description",
+            document.getElementById("modDescription").value
+          );
+
+          const modFile = document.getElementById("modFile").files[0];
+          const iconFile = document.getElementById("modIcon").files[0];
+
+          if (modFile) formData.append("modFile", modFile);
+          if (iconFile) formData.append("icon", iconFile);
+
+          const statusElement = document.getElementById("uploadStatus");
+          statusElement.textContent = "Uploading mod...";
+          statusElement.style.color = "white";
+
+          try {
+            const response = await fetch("/api/mods", {
+              method: "POST",
+              body: formData,
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              statusElement.textContent = "Mod uploaded successfully!";
+              statusElement.style.color = "#4CAF50";
+              loadMods(); // Refresh the mod list
+              this.reset();
+              document.getElementById("iconPreview").style.display = "none";
+            } else {
+              throw new Error(result.error || "Failed to upload mod");
+            }
+          } catch (error) {
+            console.error("Upload error:", error);
+            statusElement.textContent = `Error: ${error.message}`;
+            statusElement.style.color = "#f44336";
           }
-        } catch (error) {
-          console.error('Upload error:', error);
-          statusElement.textContent = `Error: ${error.message}`;
-          statusElement.style.color = '#f44336';
-        }
-      });
+        });
 
       // Format date to relative time (e.g., "2 days ago")
       function formatDate(dateString) {
         const date = new Date(dateString);
         const now = new Date();
         const diffInSeconds = Math.floor((now - date) / 1000);
-        
-        if (diffInSeconds < 60) return 'Just now';
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-        
-        return date.toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric' 
+
+        if (diffInSeconds < 60) return "Just now";
+        if (diffInSeconds < 3600)
+          return `${Math.floor(diffInSeconds / 60)}m ago`;
+        if (diffInSeconds < 86400)
+          return `${Math.floor(diffInSeconds / 3600)}h ago`;
+        if (diffInSeconds < 604800)
+          return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
         });
       }
 
@@ -195,17 +233,17 @@
 
       // Load and display mods
       async function loadMods() {
-        const modList = document.getElementById('modList');
+        const modList = document.getElementById("modList");
         modList.innerHTML = `
           <div class="loading">
             <i class="fas fa-spinner fa-spin"></i> Loading mods...
           </div>
         `;
-        
+
         try {
-          const response = await fetch('/api/mods');
+          const response = await fetch("/api/mods");
           const mods = await response.json();
-          
+
           if (mods.length === 0) {
             modList.innerHTML = `
               <div class="no-mods">
@@ -216,20 +254,21 @@
             `;
             return;
           }
-          
+
           // Sort by upload date (newest first)
           mods.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
-          
-          modList.innerHTML = '';
-          
-          mods.forEach(mod => {
-            const modElement = document.createElement('div');
-            modElement.className = 'mod-item';
-            
+
+          modList.innerHTML = "";
+
+          mods.forEach((mod) => {
+            const modElement = document.createElement("div");
+            modElement.className = "mod-item";
+
             // Format file size if available
-            const fileSize = mod.fileSize ? 
-              ` • ${(mod.fileSize / 1024 / 1024).toFixed(1)} MB` : '';
-            
+            const fileSize = mod.fileSize
+              ? ` • ${(mod.fileSize / 1024 / 1024).toFixed(1)} MB`
+              : "";
+
             modElement.innerHTML = `
               <img 
                 src="${mod.iconPath}" 
@@ -240,34 +279,41 @@
               >
               <div class="mod-content">
                 <h2>${mod.name}</h2>
-                <p>${mod.description || 'No description provided.'}</p>
+                <p>${mod.description || "No description provided."}</p>
                 
                 <div class="mod-stats">
                   <span class="stat-item">
-                    <i class="fas fa-user"></i> ${mod.author || 'Unknown'}
+                    <i class="fas fa-user"></i> ${mod.author || "Unknown"}
                   </span>
                   <span class="stat-item">
-                    <i class="fas fa-download"></i> ${formatNumber(mod.downloads || 0)}
+                    <i class="fas fa-download"></i> ${formatNumber(
+                      mod.downloads || 0
+                    )}
                   </span>
                   <span class="stat-item">
-                    <i class="fas fa-code-branch"></i> v${mod.version || '1.0.0'}
+                    <i class="fas fa-code-branch"></i> v${
+                      mod.version || "1.0.0"
+                    }
                   </span>
                   <span class="stat-item">
-                    <i class="far fa-calendar-alt"></i> ${formatDate(mod.uploadDate || new Date().toISOString())}
+                    <i class="far fa-calendar-alt"></i> ${formatDate(
+                      mod.uploadDate || new Date().toISOString()
+                    )}
                   </span>
                 </div>
                 
                 <a href="/download/mod/${mod.id}" class="download-button">
-                  <i class="fas fa-download"></i> Download${fileSize}
+                  <i class="fas fa-download"></i> Download <!-- ${fileSize} -->
                 </a>
               </div>
             `;
-            
+
             modList.appendChild(modElement);
           });
         } catch (error) {
-          console.error('Error loading mods:', error);
-          modList.innerHTML = '<div class="error">Failed to load mods. Please try again later.</div>';
+          console.error("Error loading mods:", error);
+          modList.innerHTML =
+            '<div class="error">Failed to load mods. Please try again later.</div>';
         }
       }
 
@@ -278,8 +324,10 @@
 
         modItems.forEach((modItem) => {
           const title = modItem.querySelector("h2").textContent.toLowerCase();
-          const description = modItem.querySelector("p").textContent.toLowerCase();
-          
+          const description = modItem
+            .querySelector("p")
+            .textContent.toLowerCase();
+
           if (title.includes(query) || description.includes(query)) {
             modItem.style.display = "block";
           } else {
@@ -289,11 +337,11 @@
       }
 
       // Initialize the page
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener("DOMContentLoaded", () => {
         loadMods();
         // Collapse the upload form by default
-        document.getElementById('modUploadForm').style.display = 'none';
-        document.getElementById('uploadForm').classList.add('collapsed');
+        document.getElementById("modUploadForm").style.display = "none";
+        document.getElementById("uploadForm").classList.add("collapsed");
       });
     </script>
   </body>
