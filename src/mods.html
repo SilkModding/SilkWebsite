@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -164,11 +164,11 @@
           formData.append("author", document.getElementById("modAuthor").value);
           formData.append(
             "version",
-            document.getElementById("modVersion").value
+            document.getElementById("modVersion").value,
           );
           formData.append(
             "description",
-            document.getElementById("modDescription").value
+            document.getElementById("modDescription").value,
           );
 
           const modFile = document.getElementById("modFile").files[0];
@@ -287,7 +287,7 @@
                   </span>
                   <span class="stat-item">
                     <i class="fas fa-download"></i> ${formatNumber(
-                      mod.downloads || 0
+                      mod.downloads || 0,
                     )}
                   </span>
                   <span class="stat-item">
@@ -297,7 +297,7 @@
                   </span>
                   <span class="stat-item">
                     <i class="far fa-calendar-alt"></i> ${formatDate(
-                      mod.uploadDate || new Date().toISOString()
+                      mod.uploadDate || new Date().toISOString(),
                     )}
                   </span>
                 </div>

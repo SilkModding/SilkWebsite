@@ -1,99 +1,98 @@
 /* Docs Styles */
 .docs-container {
-    display: flex;
-    min-height: 80vh;
-    background-image: url("/assets/background.png");
-    background-size: cover;
-    background-position: center;
-    padding: 100px 80px 80px;
-  }
-  
-  .sidebar {
-    width: 250px;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    margin-right: 20px;
-    max-height: 80vh;
-    overflow: scroll;
-  }
-  
-  .sidebar h2 {
-    color: #ff0064;
-    margin-bottom: 15px;
-  }
-  
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .sidebar li {
-    margin: 10px 0;
-  }
-  
-  .sidebar a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.1em;
-  }
-  
-  .sidebar a:hover {
-    color: #00ffbb;
-  }
-  
-  .docs-content {
-    flex: 1;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 30px;
-    border-radius: 10px;
-    color: #fff;
-    line-height: 1.5;
-  }
-  
-  .docs-content h1 {
-    color: #ff0064;
-    border-bottom: 2px solid #ff0064;
-    padding-bottom: 10px;
-  }
-  
-  .docs-content h2 {
-    color: #00ffbb;
-    margin-top: 30px;
-  }
-  
-  .docs-content p {
-    margin: 20px 0;
-  }
-  
-  .docs-content code {
-    background-color: #2a1f3b;
-    padding: 2px 5px;
-    border-radius: 3px;
-    font-family: monospace;
-  }
-  
-  .docs-content pre {
-    background-color: #2a1f3b;
-    padding: 15px;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin: 20px 0;
-  }
-  
-  .docs-content pre code {
-    background-color: transparent;
-  }
-  
-  .docs-content a {
-    color: #00ffbb;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  
-  .docs-content a:hover {
-    color: #ff0064;
-    text-decoration: underline;
-  }
-  
+  display: flex;
+  min-height: 80vh;
+  background-image: url("/assets/background.png");
+  background-size: cover;
+  background-position: center;
+  padding: 100px 80px 80px;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  margin-right: 20px;
+  max-height: 80vh;
+  overflow: scroll;
+}
+
+.sidebar h2 {
+  color: #ff0064;
+  margin-bottom: 15px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin: 10px 0;
+}
+
+.sidebar a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1em;
+}
+
+.sidebar a:hover {
+  color: #00ffbb;
+}
+
+.docs-content {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  border-radius: 10px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.docs-content h1 {
+  color: #ff0064;
+  border-bottom: 2px solid #ff0064;
+  padding-bottom: 10px;
+}
+
+.docs-content h2 {
+  color: #00ffbb;
+  margin-top: 30px;
+}
+
+.docs-content p {
+  margin: 20px 0;
+}
+
+.docs-content code {
+  background-color: #2a1f3b;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.docs-content pre {
+  background-color: #2a1f3b;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.docs-content pre code {
+  background-color: transparent;
+}
+
+.docs-content a {
+  color: #00ffbb;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.docs-content a:hover {
+  color: #ff0064;
+  text-decoration: underline;
+}
