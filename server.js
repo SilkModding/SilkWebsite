@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
 // File filter for security
 const fileFilter = (req, file, cb) => {
   const allowedFileTypes = {
-    modFile: [".zip", ".silkmod"],
+    modFile: [".zip", ".silkmod", ".dll"],
     icon: [".jpg", ".jpeg", ".png", ".gif"],
   };
 
