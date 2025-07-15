@@ -81,32 +81,40 @@ app.get("/", (req, res) => {
 });
 
 // Function to get documentation structure
-const getDocsStructure = (dir = markdownDir, basePath = "") => {
-  const items = fs.readdirSync(dir, { withFileTypes: true });
+const getDocsStructure = () => {
   const structure = [];
+  const categories = fs.readdirSync(markdownDir, { withFileTypes: true });
 
-  for (const item of items) {
-    if (item.isDirectory()) {
-      // Recursively get nested folders/files
-      const nested = getDocsStructure(
-        path.join(dir, item.name),
-        path.join(basePath, item.name)
-      );
-      if (nested.length > 0) {
+  for (const category of categories) {
+    if (category.isDirectory()) {
+      const categoryName = category.name;
+      const categoryPath = path.join(markdownDir, categoryName);
+      const pages = fs
+        .readdirSync(categoryPath)
+        .filter((file) => file.endsWith(".md"))
+        .map((file) => ({
+          name: file.replace(".md", ""),
+          path: path.join(categoryName, file.replace(".md", "")),
+        }));
+
+      if (pages.length > 0) {
         structure.push({
-          type: "folder",
-          name: item.name,
-          path: basePath ? path.join(basePath, item.name) : item.name,
-          children: nested,
+          name: categoryName
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" "),
+          id: categoryName,
+          pages,
         });
       }
-    } else if (item.name.endsWith(".md")) {
+    } else if (category.name.endsWith(".md")) {
       structure.push({
-        type: "file",
-        name: item.name.replace(".md", ""),
-        path: basePath
-          ? path.join(basePath, item.name.replace(".md", ""))
-          : item.name.replace(".md", ""),
+        name: category.name
+          .replace(".md", "")
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
+        path: category.name.replace(".md", ""),
       });
     }
   }
