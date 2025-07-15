@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="/main.css" />
     <link rel="stylesheet" href="/stylesheets/docs.css" />
     <link rel="icon" type="image/png" href="/assets/silk-letter.png" />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- Prism.js for code highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css"
+    />
   </head>
   <body>
     <!-- Navigation Links -->
@@ -18,13 +28,133 @@
       <div class="nav-links">
         <a href="https://github.com/SilkModding/Silk" target="_blank">GitHub</a>
         <a href="https://discord.gg/GGv92crcx3" target="_blank">Discord</a>
-        <a href="/docs/">Docs</a>
+        <a href="/docs/" class="active">Docs</a>
       </div>
     </div>
 
     <div class="docs-container">
-      <div class="sidebar" id="sidebar"></div>
-      <div class="docs-content" id="content"></div>
+      <!--SIDEBAR-->
+      <!--CONTENT-->
     </div>
+
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-xml-doc.min.js"></script>
+
+    <!-- Custom JavaScript for docs -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Docs script initialized.");
+
+        // Toggle category expansion
+        document.querySelectorAll(".category-header").forEach((header) => {
+          header.addEventListener("click", function () {
+            console.log(
+              "Category header clicked:",
+              this.innerText.split("\n")[0].trim()
+            );
+            const category = this.parentElement;
+            const isExpanded = category.classList.contains("expanded");
+            const content = this.nextElementSibling;
+            const icon = this.querySelector(".toggle-icon");
+
+            if (isExpanded) {
+              console.log("Collapsing category.");
+              category.classList.remove("expanded");
+              content.style.display = "none";
+              icon.textContent = "+";
+            } else {
+              console.log("Expanding category.");
+              category.classList.add("expanded");
+              content.style.display = "block";
+              icon.textContent = "−";
+            }
+          });
+        });
+
+        // Handle search
+        const searchInput = document.getElementById("doc-search");
+        const searchButton = document.getElementById("search-btn");
+
+        if (searchInput && searchButton) {
+          console.log("Search input and button found.");
+          const performSearch = () => {
+            const query = searchInput.value.trim().toLowerCase();
+            console.log("Performing search for query:", query);
+            if (!query) {
+              console.log("Search query is empty, exiting.");
+              return;
+            }
+
+            // Simple search implementation - could be enhanced with a proper search index
+            const allLinks = document.querySelectorAll(".sidebar a");
+            let found = false;
+
+            allLinks.forEach((link) => {
+              const text = link.textContent.toLowerCase();
+              if (text.includes(query)) {
+                console.log("Found match in link:", link.textContent);
+                found = true;
+                // Expand parent category if needed
+                const category = link.closest(".sidebar-category");
+                if (category) {
+                  console.log("Expanding parent category for matched link.");
+                  category.classList.add("expanded");
+                  const content = category.querySelector(".category-pages");
+                  if (content) content.style.display = "block";
+                  const icon = category.querySelector(".toggle-icon");
+                  if (icon) icon.textContent = "−";
+                }
+                link.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                link.classList.add("search-highlight");
+                setTimeout(
+                  () => link.classList.remove("search-highlight"),
+                  2000
+                );
+              }
+            });
+
+            if (!found) {
+              console.log("No matches found for query:", query);
+              alert("No matching documentation found for: " + query);
+            }
+          };
+
+          searchButton.addEventListener("click", performSearch);
+          searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") performSearch();
+          });
+        } else {
+          console.log("Search input or button not found.");
+        }
+
+        // Add anchor links to headers
+        console.log("Processing headers to add anchor links.");
+        document
+          .querySelectorAll(
+            ".docs-content h2, .docs-content h3, .docs-content h4"
+          )
+          .forEach((header) => {
+            console.log("Processing header:", header.textContent);
+            const id = header.textContent
+              .toLowerCase()
+              .replace(/[^\w]+/g, "-")
+              .replace(/^-+|-+$/g, "");
+            header.id = id;
+            console.log("Generated ID:", id);
+
+            const anchor = document.createElement("a");
+            anchor.href = `#${id}`;
+            anchor.className = "header-anchor";
+            anchor.innerHTML = '<i class="fas fa-link"></i>';
+            anchor.title = "Link to this section";
+
+            header.insertBefore(anchor, header.firstChild);
+          });
+      });
+    </script>
   </body>
 </html>

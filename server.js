@@ -1,14 +1,18 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const marked = require("marked");
-const multer = require("multer");
-const crypto = require("crypto");
-const dotenv = require("dotenv");
+import express from "express";
+import fs from "fs";
+import path from "path";
+import { marked } from "marked";
+import multer from "multer";
+import crypto from "crypto";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure file upload storage
 const uploadsDir = path.join(__dirname, "uploads");
@@ -76,13 +80,104 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "src", "index.html"));
 });
 
-// Function to get available markdown files
-const getDocsPages = () => {
-  return fs
-    .readdirSync(markdownDir)
-    .filter((file) => file.endsWith(".md"))
-    .map((file) => file.replace(".md", ""));
+// Function to get documentation structure
+const getDocsStructure = (dir = markdownDir, basePath = "") => {
+  const items = fs.readdirSync(dir, { withFileTypes: true });
+  const structure = [];
+
+  for (const item of items) {
+    if (item.isDirectory()) {
+      // Recursively get nested folders/files
+      const nested = getDocsStructure(
+        path.join(dir, item.name),
+        path.join(basePath, item.name)
+      );
+      if (nested.length > 0) {
+        structure.push({
+          type: "folder",
+          name: item.name,
+          path: basePath ? path.join(basePath, item.name) : item.name,
+          children: nested,
+        });
+      }
+    } else if (item.name.endsWith(".md")) {
+      structure.push({
+        type: "file",
+        name: item.name.replace(".md", ""),
+        path: basePath
+          ? path.join(basePath, item.name.replace(".md", ""))
+          : item.name.replace(".md", ""),
+      });
+    }
+  }
+
+  return structure;
 };
+
+// Function to get all pages as a flat list
+const getAllPages = () => {
+  const structure = getDocsStructure();
+  const pages = [];
+
+  for (const item of structure) {
+    if (item.pages) {
+      for (const page of item.pages) {
+        pages.push({
+          name: page.name,
+          path: page.path,
+          category: item.name,
+        });
+      }
+    } else {
+      pages.push({
+        name: item.name,
+        path: item.path,
+        category: "General",
+      });
+    }
+  }
+
+  return pages;
+};
+
+// Marked.js configuration
+marked.setOptions({
+  highlight: function (code, lang) {
+    if (prism.languages[lang]) {
+      return prism.highlight(code, prism.languages[lang], lang);
+    } else {
+      return code;
+    }
+  },
+  // Support for custom containers like :::note, :::warning, etc.
+  extensions: [
+    {
+      name: "customContainers",
+      level: "block",
+      start: (src) =>
+        src.match(/^:::(note|warning|tip|info|danger)\s*\n/)?.index,
+      tokenizer(src, tokens) {
+        const rule =
+          /^:::(note|warning|tip|info|danger)\s*\n([\s\S]*?)\n(?:\n|$)/;
+        const match = rule.exec(src);
+        if (match) {
+          return {
+            type: "customContainers",
+            raw: match[0],
+            containerType: match[1],
+            text: match[2],
+            tokens: this.lexer.blockTokens(match[2], []),
+          };
+        }
+      },
+      renderer(token) {
+        return `<div class="alert alert-${
+          token.containerType
+        }">${this.parser.parse(token.tokens)}</div>`;
+      },
+    },
+  ],
+});
 
 // Update the docs routes
 const docsTemplate = fs.readFileSync(
@@ -90,63 +185,174 @@ const docsTemplate = fs.readFileSync(
   "utf8"
 );
 
+const renderSidebar = (activePage = "") => {
+  const structure = getDocsStructure();
+  let sidebarHtml = '<div class="sidebar-inner">\n';
+
+  for (const category of structure) {
+    if (category.pages) {
+      // Category with pages
+      const isActive = category.pages.some(
+        (page) => page.path === activePage || `/${page.path}` === activePage
+      );
+
+      sidebarHtml += `
+        <div class="sidebar-category ${isActive ? "expanded" : ""}">
+          <div class="category-header">
+            <span>${category.name}</span>
+            <span class="toggle-icon">${isActive ? "−" : "+"}</span>
+          </div>
+          <ul class="category-pages" ${
+            isActive ? "" : 'style="display: none;"'
+          }>
+            ${category.pages
+              .map((page) => {
+                const isActivePage =
+                  page.path === activePage || `/${page.path}` === activePage;
+                return `
+                <li class="${isActivePage ? "active" : ""}">
+                  <a href="/docs/${page.path}">${page.name}</a>
+                </li>`;
+              })
+              .join("\n")}
+          </ul>
+        </div>`;
+    } else {
+      // Single page
+      const isActive =
+        category.path === activePage || `/${category.path}` === activePage;
+      sidebarHtml += `
+        <div class="sidebar-page">
+          <a href="/docs/${category.path}" class="${isActive ? "active" : ""}">
+            ${category.name}
+          </a>
+        </div>`;
+    }
+  }
+
+  sidebarHtml += "\n</div>";
+  return sidebarHtml;
+};
+
+// Home documentation page
 app.get("/docs", (req, res) => {
-  const pages = getDocsPages();
-  const sidebar = pages
-    .map((page) => `<li><a href="/docs/${page}">${page}</a></li>`)
-    .join("");
+  const sidebar = renderSidebar("");
 
   const fullPage = docsTemplate
     .replace(
-      '<div class="sidebar" id="sidebar"></div>',
-      `<div class="sidebar" id="sidebar">
-        <h2>Documentation</h2>
-        <ul>${sidebar}</ul>
-       </div>`
+      "<!--SIDEBAR-->",
+      `
+    <div class="sidebar" id="sidebar">
+      <div class="search-box">
+        <input type="text" id="doc-search" placeholder="Search documentation">
+        <button id="search-btn">Search</button>
+      </div>
+      ${sidebar}
+    </div>
+  `
     )
     .replace(
-      '<div class="docs-content" id="content"></div>',
-      `<div class="docs-content">
-        <h1>Silk Documentation</h1>
-        <p>Welcome! You can find a mirror of the documentation on <a href="https://github.com/SilkModding/Silk/wiki">the GitHub wiki</a> if you prefer.</p>
-        <p>Select a topic from the sidebar to get started.</p>
-       </div>`
+      "<!--CONTENT-->",
+      `
+    <div class="docs-content">
+      <h1>Silk Documentation</h1>
+      <div class="welcome-message">
+        <p>Welcome to the Silk documentation! Here you'll find everything you need to know about creating, installing, and working with mods for SpiderHeck.</p>
+        <div class="quick-links">
+          <a href="/docs/getting-started/installation" class="quick-link">
+            <h3>Getting Started</h3>
+            <p>New to Silk? Start here to get up and running.</p>
+          </a>
+          <a href="/docs/guides/making-mods" class="quick-link">
+            <h3>Making Mods</h3>
+            <p>Learn how to create your own mods for SpiderHeck.</p>
+          </a>
+          <a href="/docs/guides/installing-mods" class="quick-link">
+            <h3>Installing Mods</h3>
+            <p>How to install and manage mods with Silk.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  `
     );
 
   res.send(fullPage);
 });
 
-app.get("/docs/:page", (req, res) => {
-  const page = req.params.page;
-  const mdPath = path.join(markdownDir, `${page}.md`);
+// Documentation page
+app.get("/docs/:category/:page", (req, res) => {
+  const { category, page } = req.params;
+  const pagePath = path.join(category, page);
+  const mdPath = path.join(markdownDir, category, `${page}.md`);
 
   if (!fs.existsSync(mdPath)) {
     res.status(404).send("Documentation page not found");
     return;
   }
 
-  const pages = getDocsPages();
-  const sidebar = pages
-    .map((p) => `<li><a href="/docs/${p}">${p}</a></li>`)
-    .join("");
-
   const markdownContent = fs.readFileSync(mdPath, "utf8");
   const htmlContent = marked(markdownContent);
 
+  // Add edit on GitHub link
+  const editLink = `https://github.com/SilkModding/SilkWebsite/edit/main/markdown/${category}/${page}.md`;
+  const contentWithEditLink = `
+    <div class="content-header">
+      <a href="${editLink}" class="edit-link" target="_blank">
+        <i class="fas fa-edit"></i> Edit this page on GitHub
+      </a>
+    </div>
+    ${htmlContent}
+  `;
+
+  const sidebar = renderSidebar(`/${category}/${page}`);
+
   const fullPage = docsTemplate
     .replace(
-      '<div class="sidebar" id="sidebar"></div>',
-      `<div class="sidebar" id="sidebar">
-        <h2>Documentation</h2>
-        <ul>${sidebar}</ul>
-       </div>`
+      "<!--SIDEBAR-->",
+      `
+    <div class="sidebar" id="sidebar">
+      <div class="search-box">
+        <input type="text" id="doc-search" placeholder="Search documentation">
+        <button id="search-btn">Search</button>
+      </div>
+      ${sidebar}
+    </div>
+  `
     )
     .replace(
-      '<div class="docs-content" id="content"></div>',
-      `<div class="docs-content">${htmlContent}</div>`
+      "<!--CONTENT-->",
+      `
+    <div class="docs-content">
+      ${contentWithEditLink}
+    </div>
+  `
     );
 
   res.send(fullPage);
+});
+
+// Support for old direct page links
+app.get("/docs/:page", (req, res) => {
+  const page = req.params.page;
+  const mdPath = path.join(markdownDir, `${page}.md`);
+
+  if (fs.existsSync(mdPath)) {
+    // If it's a direct page, redirect to the new URL structure
+    res.redirect(301, `/docs/general/${page}`);
+  } else {
+    // Try to find the page in subdirectories
+    const allPages = getAllPages();
+    const foundPage = allPages.find(
+      (p) => p.name.toLowerCase() === page.toLowerCase()
+    );
+
+    if (foundPage) {
+      res.redirect(301, `/docs/${foundPage.path}`);
+    } else {
+      res.status(404).send("Documentation page not found");
+    }
+  }
 });
 
 // Handle other routes

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "SpiderHeck docs",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "pm2 start ecosystem.config.js",
     "dev": "nodemon server.js"
