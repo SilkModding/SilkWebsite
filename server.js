@@ -245,6 +245,15 @@ const renderSidebar = (activePage = "") => {
 // Home documentation page
 app.get("/docs", (req, res) => {
   const sidebar = renderSidebar("");
+  
+  // Load Main.md as the homepage
+  const mainMdPath = path.join(markdownDir, "main.md");
+  let htmlContent = "<h1>Silk Documentation</h1><p>If you are seeing this, the site has failed to load</p>";
+  
+  if (fs.existsSync(mainMdPath)) {
+    const markdownContent = fs.readFileSync(mainMdPath, "utf8");
+    htmlContent = marked(markdownContent);
+  }
 
   const fullPage = docsTemplate
     .replace(
@@ -263,24 +272,7 @@ app.get("/docs", (req, res) => {
       "<!--CONTENT-->",
       `
     <div class="docs-content">
-      <h1>Silk Documentation</h1>
-      <div class="welcome-message">
-        <p>Welcome to the Silk documentation! Here you'll find everything you need to know about creating, installing, and working with mods for SpiderHeck.</p>
-        <div class="quick-links">
-          <a href="/docs/getting-started/installation" class="quick-link">
-            <h3>Getting Started</h3>
-            <p>New to Silk? Start here to get up and running.</p>
-          </a>
-          <a href="/docs/guides/making-mods" class="quick-link">
-            <h3>Making Mods</h3>
-            <p>Learn how to create your own mods for SpiderHeck.</p>
-          </a>
-          <a href="/docs/guides/installing-mods" class="quick-link">
-            <h3>Installing Mods</h3>
-            <p>How to install and manage mods with Silk.</p>
-          </a>
-        </div>
-      </div>
+      ${htmlContent}
     </div>
   `
     );

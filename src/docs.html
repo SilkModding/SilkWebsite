@@ -132,7 +132,7 @@
         }
 
         // Add anchor links to headers
-        console.log("Processing headers to add anchor links.");
+        console.log("Processing headers to make them clickable.");
         document
           .querySelectorAll(
             ".docs-content h2, .docs-content h3, .docs-content h4"
@@ -146,13 +146,18 @@
             header.id = id;
             console.log("Generated ID:", id);
 
-            const anchor = document.createElement("a");
-            anchor.href = `#${id}`;
-            anchor.className = "header-anchor";
-            anchor.innerHTML = '<i class="fas fa-link"></i>';
-            anchor.title = "Link to this section";
-
-            header.insertBefore(anchor, header.firstChild);
+            // Make entire header clickable
+            header.style.cursor = "pointer";
+            header.onclick = function() {
+              window.location.hash = id;
+              // Copy link to clipboard
+              const url = window.location.origin + window.location.pathname + '#' + id;
+              navigator.clipboard.writeText(url).then(() => {
+                console.log('Link copied to clipboard');
+              }).catch(err => {
+                console.error('Failed to copy:', err);
+              });
+            };
           });
       });
     </script>
